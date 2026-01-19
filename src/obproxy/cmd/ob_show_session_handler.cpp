@@ -500,6 +500,18 @@ int ObShowSessionHandler::dump_cs_attribute(const ObMysqlClientSession &cs)
     WDIAG_ICMD("fail to dump attribute item", K(ret));
   } else { }
 
+  // dump connected_time (session create time)
+  if (OB_SUCC(ret)) {
+    const int64_t TMP_BUF_SIZE = 64;
+    char connected_time_buf[TMP_BUF_SIZE];
+    int64_t pos = 0;
+    if (OB_FAIL(ObTimeUtility::usec_to_str(cs.get_connected_time(), connected_time_buf, TMP_BUF_SIZE, pos))) {
+      WDIAG_ICMD("fail to convert connected_time to string", K(ret));
+    } else if (OB_FAIL(dump_cs_attribute_item("connected_time", connected_time_buf, cs_common_info))) {
+      WDIAG_ICMD("fail to dump attribute item", K(ret));
+    }
+  }
+
   //dump session stat
   if (OB_SUCC(ret)) {
     if (OB_FAIL(dump_cs_attribute_item("modified_time", session_stat.modified_time_, cs_stat_info))) {
